@@ -1,4 +1,4 @@
-import type { MetaFunction } from "@remix-run/node";
+import { type MetaFunction } from "@remix-run/node";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
@@ -14,6 +14,29 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [query, setQuery] = useState("");
+
+  const handleSubmit = async function (e: React.FormEvent) {
+    e.preventDefault();
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const query = formData.get("question") as string;
+
+    setQuestion(query);
+    setQuery("");
+    setAnswer("");
+
+    const sse = new EventSource(`/api/chat/${query}`);
+
+    sse.addEventListener("message", (event) => {
+      setAnswer((prevResults) => prevResults + event.data);
+    });
+
+    sse.addEventListener("error", () => {
+      sse.close();
+    });
+  };
 
   return (
     <div className="bg-slate-50 flex h-screen items-center justify-center">
@@ -24,35 +47,27 @@ export default function Index() {
         <CardContent className="bg-slate-100 flex-1 w-full flex flex-col overflow-y-scroll gap-4 p-3 rounded no-scrollbar">
           <div className="flex flex-col w-full gap-2">
             <span className="text-slate-500 font-medium">Question:</span>
-            <p>Sample question</p>
+            <p>{question}</p>
           </div>
           <span className="text-slate-500 font-medium">Answer:</span>
           <div className="flex-1 w-full flex overflow-y-scroll no-scrollbar">
-            <p>
-              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Atque,
-              molestias? Dolorum repudiandae dignissimos quos deleniti aut
-              mollitia perferendis, placeat delectus minima harum, vero dolor
-              ipsa incidunt molestias quo at corrupti nemo. Quasi quaerat ipsum
-              non maxime repudiandae temporibus maiores. Nam eum facilis error
-              facere! Provident perferendis temporibus, hic non aut dolor, cum
-              maxime nisi aliquid, neque natus quod molestias aspernatur! Non ad
-              voluptatem iusto amet maiores quisquam minus officiis eaque ipsam
-              odio? Eos est quibusdam illo possimus quaerat at amet aliquid
-              facere numquam ab deserunt minus debitis unde, fuga porro et
-              dolore mollitia esse! Sed officiis earum fugit itaque
-            </p>
+            <p>{answer}</p>
           </div>
         </CardContent>
         <Separator />
-        <div className="flex flex-col sm:flex-row w-full mt-4 gap-4">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col sm:flex-row w-full mt-4 gap-4"
+        >
           <Input
             type="text"
             placeholder="your question"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
+            name="question"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
           />
-          <Button>Submit</Button>
-        </div>
+          <Button type="submit">Submit</Button>
+        </form>
       </Card>
     </div>
   );
