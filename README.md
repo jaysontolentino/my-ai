@@ -1,13 +1,31 @@
-# Welcome to Remix!
+# Simple AI app
 
-- 📖 [Remix docs](https://remix.run/docs)
+## Run Locally
 
-## Development
+Clone the project
 
-Run the dev server:
+```bash
+  git clone https://github.com/jaysontolentino/my-ai.git
+```
 
-```shellscript
-npm run dev
+Go to the project directory
+
+```bash
+  cd my-ai
+```
+
+Install dependencies
+
+```bash
+  yarn
+```
+
+Copy .env.sample and rename it to .env and put your OPENAI API KEY
+
+Start the server
+
+```bash
+  yarn dev
 ```
 
 ## Deployment
@@ -15,13 +33,13 @@ npm run dev
 First, build your app for production:
 
 ```sh
-npm run build
+yarn run build
 ```
 
 Then run the app in production mode:
 
 ```sh
-npm start
+yarn start
 ```
 
 Now you'll need to pick a host to deploy it to.
